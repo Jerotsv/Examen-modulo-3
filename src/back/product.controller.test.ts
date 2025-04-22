@@ -70,4 +70,23 @@ describe('Given ProductsController', () => {
             expect(next).toHaveBeenCalledWith(error);
         });
     });
+    describe('When use create', () => {
+        test('Then should call json when repo response is valid', async () => {
+            //Act
+            await productsRepo.create(req, res, next);
+            //Assert
+            expect(res.json).toHaveBeenCalledWith({
+                results: [],
+                error: '',
+            });
+        });
+        test('Then should call next when repo throw an error', async () => {
+            //Arrange
+            (mockRepo.create as Mock).mockRejectedValueOnce(error);
+            //Act
+            await productsRepo.create(req, res, next);
+            //Assert
+            expect(next).toHaveBeenCalledWith(error);
+        });
+    });
 });
