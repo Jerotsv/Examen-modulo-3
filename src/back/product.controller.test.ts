@@ -1,0 +1,53 @@
+import { ProductsController } from './products.controller';
+import { Mock } from 'vitest';
+import { NextFunction, Request, Response } from 'express';
+
+const mockRepo = {
+    read: vi.fn().mockResolvedValueOnce([]),
+    readById: vi.fn().mockResolvedValueOnce([]),
+    create: vi.fn().mockResolvedValueOnce([]),
+    update: vi.fn().mockResolvedValueOnce([]),
+    delete: vi.fn().mockResolvedValueOnce([]),
+};
+const req = {
+    params: {},
+    body: {},
+} as unknown as Request;
+const res = {
+    json: vi.fn(),
+    status: vi.fn(),
+} as unknown as Response;
+const next = vi.fn() as NextFunction;
+
+const error = new Error('Error');
+
+describe('Given ProductsController', () => {
+    // ProductCreateDTO.parse = vi.fn();
+    // ProductCreateDTO.partial = vi.fn().mockReturnValue(ProductCreateDTO.parse);
+
+    const productsRepo = new ProductsController(mockRepo);
+    test('Then should be defined', () => {
+        //Assert
+        expect(productsRepo).toBeDefined();
+        expect(productsRepo).toBeInstanceOf(ProductsController);
+    });
+    describe('When when getAll is called', () => {
+        test('Then controller should respond with json', async () => {
+            //Act
+            await productsRepo.getAll(req, res, next);
+            //Assert
+            expect(res.json).toHaveBeenCalledWith({
+                results: [],
+                error: '',
+            });
+        });
+        test('Then should call next when repo throw an error', async () => {
+            //Arrange
+            (mockRepo.read as Mock).mockRejectedValueOnce(error);
+            //Act
+            await productsRepo.getAll(req, res, next);
+            //Assert
+            expect(next).toHaveBeenCalledWith(error);
+        });
+    });
+});
