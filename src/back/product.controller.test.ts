@@ -31,8 +31,8 @@ describe('Given ProductsController', () => {
         expect(productsRepo).toBeDefined();
         expect(productsRepo).toBeInstanceOf(ProductsController);
     });
-    describe('When when getAll is called', () => {
-        test('Then controller should respond with json', async () => {
+    describe('When getAll is called', () => {
+        test('Then should call json when repo response is valid', async () => {
             //Act
             await productsRepo.getAll(req, res, next);
             //Assert
@@ -46,6 +46,26 @@ describe('Given ProductsController', () => {
             (mockRepo.read as Mock).mockRejectedValueOnce(error);
             //Act
             await productsRepo.getAll(req, res, next);
+            //Assert
+            expect(next).toHaveBeenCalledWith(error);
+        });
+    });
+
+    describe('When use getById', () => {
+        test('Then should call json when repo response is valid', async () => {
+            //Act
+            await productsRepo.getById(req, res, next);
+            //Assert
+            expect(res.json).toHaveBeenCalledWith({
+                results: [],
+                error: '',
+            });
+        });
+        test('Then should call next when repo throw an error', async () => {
+            //Arrange
+            (mockRepo.readById as Mock).mockRejectedValueOnce(error);
+            //Act
+            await productsRepo.getById(req, res, next);
             //Assert
             expect(next).toHaveBeenCalledWith(error);
         });
