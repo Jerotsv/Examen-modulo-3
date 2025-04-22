@@ -22,16 +22,13 @@ const next = vi.fn() as NextFunction;
 const error = new Error('Error');
 
 describe('Given ProductsController', () => {
-    // ProductCreateDTO.parse = vi.fn();
-    // ProductCreateDTO.partial = vi.fn().mockReturnValue(ProductCreateDTO.parse);
-
     const productsRepo = new ProductsController(mockRepo);
     test('Then should be defined', () => {
         //Assert
         expect(productsRepo).toBeDefined();
         expect(productsRepo).toBeInstanceOf(ProductsController);
     });
-    describe('When getAll is called', () => {
+    describe('When use getAll', () => {
         test('Then should call json when repo response is valid', async () => {
             //Act
             await productsRepo.getAll(req, res, next);
@@ -104,6 +101,25 @@ describe('Given ProductsController', () => {
             (mockRepo.update as Mock).mockRejectedValueOnce(error);
             //Act
             await productsRepo.update(req, res, next);
+            //Assert
+            expect(next).toHaveBeenCalledWith(error);
+        });
+    });
+    describe('When use delete', () => {
+        test('Then should call json when repo response is valid', async () => {
+            //Act
+            await productsRepo.delete(req, res, next);
+            //Assert
+            expect(res.json).toHaveBeenCalledWith({
+                results: [],
+                error: '',
+            });
+        });
+        test('Then should call next when repo throw an error', async () => {
+            //Arrange
+            (mockRepo.delete as Mock).mockRejectedValueOnce(error);
+            //Act
+            await productsRepo.delete(req, res, next);
             //Assert
             expect(next).toHaveBeenCalledWith(error);
         });
